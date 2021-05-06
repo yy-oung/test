@@ -5,7 +5,7 @@ import time
 import datetime
 import sys
 
-faceCascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+faceCascade = cv2.CascadeClassifier("haarcascade_frontface.xml")
 num = 3
 app = Flask(__name__)
 
@@ -42,21 +42,21 @@ def gen_frames():
         timeString = now.strftime("%Y-%m-%d %H:%M")
         cv2.putText(image, timeString, (10, 45),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
         cv2.imshow("Frame", image)
+        key = cv2.waitKey(1) & 0xFF
      # if the `q` key was pressed, break from the loop
-        if cv2.waitKey(1) == ord("q"):
+        if key == ord("q"):
             break
    
         ret, buffer = cv2.imencode('.jpg', image)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-        
+       
+ 
 @app.route('/video_feed')
-
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
-    return Response(gen_frames(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1')
+    app.run(debug=True)   
